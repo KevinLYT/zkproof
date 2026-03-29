@@ -1,0 +1,20 @@
+{
+  "name": "zk-poseidon-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimal Circom + snarkjs demo: prove knowledge of secret with Poseidon",
+  "scripts": {
+    "compile": "node scripts/compile.cjs",
+    "setup": "node scripts/setup.cjs",
+    "gen-input": "node scripts/gen-input.cjs",
+    "witness": "node scripts/witness.cjs",
+    "prove": "node scripts/prove.cjs",
+    "verify": "node scripts/verify.cjs",
+    "all": "npm run compile && npm run setup && npm run gen-input && npm run witness && npm run prove && npm run verify"
+  },
+  "dependencies": {
+    "circomlib": "2.0.5",
+    "circomlibjs": "0.1.7",
+    "snarkjs": "0.7.6"
+  }
+}
