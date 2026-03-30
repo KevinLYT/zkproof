@@ -10,7 +10,14 @@
     "witness": "node scripts/witness.cjs",
     "prove": "node scripts/prove.cjs",
     "verify": "node scripts/verify.cjs",
-    "all": "npm run compile && npm run setup && npm run gen-input && npm run witness && npm run prove && npm run verify"
+    "all": "npm run compile && npm run setup && npm run gen-input && npm run witness && npm run prove && npm run verify",
+    "merkle:compile": "node scripts/merkle-compile.cjs",
+    "merkle:setup": "node scripts/merkle-setup.cjs",
+    "merkle:gen-input": "node scripts/merkle-gen-input.cjs",
+    "merkle:witness": "node scripts/merkle-witness.cjs",
+    "merkle:prove": "node scripts/merkle-prove.cjs",
+    "merkle:verify": "node scripts/merkle-verify.cjs",
+    "merkle:all": "npm run merkle:compile && npm run merkle:setup && npm run merkle:gen-input && npm run merkle:witness && npm run merkle:prove && npm run merkle:verify"
   },
   "dependencies": {
     "circomlib": "2.0.5",
