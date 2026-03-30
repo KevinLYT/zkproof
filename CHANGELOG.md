@@ -15,3 +15,4 @@
 - 新脚本：`scripts/merkle-*.cjs`；`package.json` 中 `merkle:compile` … `merkle:verify` 与 `merkle:all`。
 - 输入：`input-merkle.json` 由 `npm run merkle:gen-input` 生成（可选参数：叶子下标 0–7）；脚本会打印 leaves、路径与根。
 - 构建产物示例：`build/merkle.r1cs`、`build/merkle_js/`、`build/merkle_final.zkey`、`build/merkle_verification_key.json` 等；`merkle:setup` 在无 `pot12_final.ptau` 时会生成 PTAU，否则复用已有文件。
+- **链上验证子项目** `contracts/`：由 `merkle_final.zkey` 导出 `Groth16Verifier.sol`（`snarkjs zkey export solidityverifier`），Truffle 编译/迁移/测试；`test/merkle_verify.test.js` 读取 `build/merkle_proof.json` 与 `merkle_public.json` 调用 `verifyProof`。

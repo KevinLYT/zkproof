@@ -47,6 +47,7 @@ scripts/           # compile / setup / witness / prove / verify (+ merkle-*)
 build/             # generated: wasm, r1cs, zkey, ptau, proofs (gitignored mostly)
 input.json         # hash demo input (secret + publicHash)
 input-merkle.json  # merkle demo input (from merkle:gen-input)
+contracts/         # Truffle: Solidity Groth16 verifier for Merkle proof
 CHANGELOG.md       # dated project log (中文)
 ```
 
@@ -111,6 +112,50 @@ npm run merkle:witness && npm run merkle:prove && npm run merkle:verify
 
 ---
 
+## On-chain verifier (Truffle)
+
+Solidity verifier is generated from `build/merkle_final.zkey` into `contracts/contracts/Verifier.sol` (contract name **`Groth16Verifier`**). Regenerate after changing the zkey:
+
+```bash
+npx snarkjs zkey export solidityverifier build/merkle_final.zkey contracts/contracts/Verifier.sol
+```
+
+Install and test (uses an **in-process Ganache** provider; one process = deploy + `verifyProof`):
+
+```bash
+cd contracts
+npm install
+npm test
+```
+
+Expect: `verifyProof => true` and **1 passing**.
+
+Print JSON args for Solidity (`a`, `b`, `2×2` `b`, `c`, `input`):
+
+```bash
+cd contracts
+npm run proof-args
+```
+
+### Optional: real Ganache on port 8545
+
+Terminal A:
+
+```bash
+cd contracts
+npx ganache --host 127.0.0.1 --port 8545
+```
+
+Terminal B:
+
+```bash
+cd contracts
+npx truffle migrate --network local8545
+npm run verify:8545
+```
+
+---
+
 ## Example (hash)
 
 Private: `secret = 12345`  
@@ -135,7 +180,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for a dated log (e.g. 2026-03-28 hash demo, 2
 ## Next steps (ideas)
 
 * Anonymous group membership on top of Merkle roots  
-* On-chain Groth16 verifier (Solidity)  
+* Wire the verifier into your dApp (beyond Truffle tests)  
 * Leaf as a commitment (hash leaf before inserting) if you need to match a specific protocol  
 
 ---

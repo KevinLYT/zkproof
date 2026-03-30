@@ -1,4 +1,7 @@
 node_modules/
+contracts/node_modules/
+contracts/build/
+
 build/*.r1cs
 build/*.wasm
 build/*.sym
