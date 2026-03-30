@@ -2,111 +2,145 @@
 
 ## Overview
 
-This project is a minimal zero-knowledge proof demo built using Circom and snarkjs.
-It proves that a user knows a secret value whose Poseidon hash matches a given public hash, without revealing the secret itself.
+This project is a minimal zero-knowledge proof demo built using Circom and snarkjs. It includes two independent pipelines:
 
-The goal of this project is to build a working zk-SNARK pipeline as a foundation for a larger privacy-preserving dApp.
+1. **Poseidon hash proof** — prove knowledge of a secret whose Poseidon hash matches a public value.
+2. **Merkle membership proof** — prove that a private leaf sits under a public Merkle root using Poseidon at each level (fixed depth 3, eight leaves).
+
+The goal is a working zk-SNARK foundation for coursework or a future privacy-oriented dApp.
 
 ---
 
-## What this demo does
+## What each demo proves
 
-We prove the following statement:
+### Hash demo
 
 > "I know a secret such that Poseidon(secret) = publicHash"
 
-* `secret` is private (never revealed)
-* `publicHash` is public
-* The verifier only checks the proof, not the secret
+* `secret` — private  
+* `publicHash` — public  
+
+### Merkle demo
+
+> "I know a leaf and an authentication path such that this leaf is in the Merkle tree with the given public root."
+
+* `root` — public  
+* `leaf`, `pathElements`, `pathIndices` — private  
+* `pathIndices[i] = 0` means the current node is the **left** input to `Poseidon(left, right)` at that level; `1` means **right**.
 
 ---
 
-## Tech Stack
+## Tech stack
 
-* Circom (circuit definition)
-* snarkjs (proof generation and verification)
-* Poseidon hash (zk-friendly hash function)
-* Groth16 (zk-SNARK proving system)
-
----
-
-## Project Structure
-
-```
-circuits/          # Circom circuits
-scripts/           # helper scripts (compile, setup, prove, verify)
-build/             # generated artifacts (wasm, r1cs, zkey, etc.)
-input.json         # example input (secret + public hash)
-```
+* Circom (circuits)
+* snarkjs (witness, Groth16 prove/verify)
+* Poseidon (`circomlib` / `circomlibjs`)
+* Groth16
 
 ---
 
-## How to Run
-
-Make sure you have installed:
-
-* Node.js
-* snarkjs
-* Circom (with Rust + MSVC toolchain on Windows)
-
-Then run:
+## Project structure
 
 ```
+circuits/           # hash.circom, merkle.circom
+scripts/           # compile / setup / witness / prove / verify (+ merkle-*)
+build/             # generated: wasm, r1cs, zkey, ptau, proofs (gitignored mostly)
+input.json         # hash demo input (secret + publicHash)
+input-merkle.json  # merkle demo input (from merkle:gen-input)
+CHANGELOG.md       # dated project log (中文)
+```
+
+---
+
+## Prerequisites
+
+* Node.js  
+* npm dependencies: `npm install`  
+* Circom installed on your PATH (Windows: Rust + MSVC if building from source)  
+* `snarkjs` is used via `npx` from the local `node_modules`
+
+---
+
+## Run: Poseidon hash demo
+
+```bash
 npm install
 npm run compile
 npm run setup
+npm run gen-input
 npm run witness
 npm run prove
 npm run verify
 ```
 
-If everything works, you should see:
+One shot:
 
+```bash
+npm run all
 ```
-[INFO] snarkJS: OK!
-```
+
+Success ends with: `[INFO] snarkJS: OK!`
 
 ---
 
-## Example
+## Run: Merkle membership demo
 
-Private input:
-
-```
-secret = 12345
-```
-
-Public input:
-
-```
-publicHash = Poseidon(secret)
+```bash
+npm run merkle:compile
+npm run merkle:setup
+npm run merkle:gen-input
+npm run merkle:witness
+npm run merkle:prove
+npm run merkle:verify
 ```
 
-The proof shows that the prover knows `secret`, but the verifier only sees the proof and `publicHash`.
+One shot:
+
+```bash
+npm run merkle:all
+```
+
+Optional leaf index `0`–`7` (default `2`):
+
+```bash
+node scripts/merkle-gen-input.cjs 5
+npm run merkle:witness && npm run merkle:prove && npm run merkle:verify
+```
+
+`merkle:gen-input` prints leaves, chosen leaf, sibling path, path indices, and computed root.
+
+---
+
+## Example (hash)
+
+Private: `secret = 12345`  
+Public: `publicHash = Poseidon(secret)`  
+
+The verifier checks the proof and `publicHash` only.
 
 ---
 
 ## Why Poseidon?
 
-Poseidon is a hash function designed for zero-knowledge circuits.
-Compared to SHA256, it is much more efficient inside zk-SNARK constraints.
+Poseidon is designed for zk circuits; it is far cheaper in constraints than SHA256.
 
 ---
 
-## Next Steps
+## Changelog
 
-This is only a minimal demo. The next step is to extend it into:
+See [CHANGELOG.md](./CHANGELOG.md) for a dated log (e.g. 2026-03-28 hash demo, 2026-03-30 Merkle).
 
-* Merkle tree membership proof
-* Anonymous group membership
-* Integration with a smart contract verifier
+---
 
-Ultimately, this will be used to build a privacy-preserving messaging dApp.
+## Next steps (ideas)
+
+* Anonymous group membership on top of Merkle roots  
+* On-chain Groth16 verifier (Solidity)  
+* Leaf as a commitment (hash leaf before inserting) if you need to match a specific protocol  
 
 ---
 
 ## Notes
 
-* The trusted setup here is local and for demo purposes only
-* Not secure for production use
-* This project is intended for learning and experimentation
+* Trusted setup is local and for learning only — not production-safe.  
+* Merkle tree uses **raw field elements** as leaves; parents are `Poseidon(left, right)`. Adjust the circuit if your protocol hashes leaves first.  
