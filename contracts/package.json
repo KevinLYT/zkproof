@@ -1,0 +1,20 @@
+{
+  "name": "zk-poseidon-demo-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Truffle: Groth16 verifier for merkle_final.zkey",
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "migrate:dev": "truffle migrate --network development",
+    "test": "truffle test",
+    "proof-args": "node scripts/proof-to-calldata.js",
+    "verify:8545": "truffle exec scripts/run-verify-proof.js --network local8545"
+  },
+  "devDependencies": {
+    "ffjavascript": "^0.2.63",
+    "ganache": "^7.9.2",
+    "snarkjs": "0.7.6",
+    "truffle": "^5.11.5"
+  }
+}
