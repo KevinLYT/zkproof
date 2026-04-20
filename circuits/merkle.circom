@@ -3,11 +3,23 @@ pragma circom 2.0.0;
 include "../node_modules/circomlib/circuits/poseidon.circom";
 
 // depth: edges from leaf to root (3 => 8 leaves)
+// Public:
+// - root: group root
+// - messageHash: binds the proof to the message payload off-chain / on-chain
+// - nullifierHash: one-time public tag for replay protection
+//
+// Private:
+// - leaf/pathElements/pathIndices: Merkle membership witness
+// - nullifier: secret used to derive the public nullifierHash
 template MerkleMembership(depth) {
     signal input leaf;
     signal input pathElements[depth];
     signal input pathIndices[depth];
+    signal input nullifier;
+
     signal input root;
+    signal input messageHash;
+    signal input nullifierHash;
 
     signal level[depth + 1];
     level[0] <== leaf;
@@ -29,6 +41,12 @@ template MerkleMembership(depth) {
     }
 
     root === level[depth];
+
+    // Bind the proof to a specific message while keeping the nullifier secret.
+    component nullifierHasher = Poseidon(2);
+    nullifierHasher.inputs[0] <== nullifier;
+    nullifierHasher.inputs[1] <== messageHash;
+    nullifierHash === nullifierHasher.out;
 }
 
-component main { public [ root ] } = MerkleMembership(3);
+component main { public [ root, messageHash, nullifierHash ] } = MerkleMembership(3);
