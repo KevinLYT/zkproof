@@ -36,7 +36,7 @@ function main() {
   console.log(JSON.stringify(args, null, 2));
   console.log("\nSolidity call shape:");
   console.log(
-    "verifyProof(uint[2] a, uint[2][2] b, uint[2] c, uint[1] input)"
+    `verifyProof(uint[2] a, uint[2][2] b, uint[2] c, uint[${args.input.length}] input)`
   );
   console.log("input length:", args.input.length);
 }

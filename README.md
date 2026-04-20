@@ -6,6 +6,7 @@ This project is a minimal zero-knowledge proof demo built using Circom and snark
 
 1. **Poseidon hash proof** — prove knowledge of a secret whose Poseidon hash matches a public value.
 2. **Merkle membership proof** — prove that a private leaf sits under a public Merkle root using Poseidon at each level (fixed depth 3, eight leaves).
+   The upgraded version also binds the proof to a public `messageHash` and emits a public `nullifierHash` for replay protection.
 
 The goal is a working zk-SNARK foundation for coursework or a future privacy-oriented dApp.
 
@@ -22,11 +23,12 @@ The goal is a working zk-SNARK foundation for coursework or a future privacy-ori
 
 ### Merkle demo
 
-> "I know a leaf and an authentication path such that this leaf is in the Merkle tree with the given public root."
+> "I know a leaf and an authentication path such that this leaf is in the Merkle tree with the given public root, and this proof is tied to one public message hash with a one-time nullifier."
 
-* `root` — public  
-* `leaf`, `pathElements`, `pathIndices` — private  
+* `root`, `messageHash`, `nullifierHash` — public  
+* `leaf`, `pathElements`, `pathIndices`, `nullifier` — private  
 * `pathIndices[i] = 0` means the current node is the **left** input to `Poseidon(left, right)` at that level; `1` means **right**.
+* `nullifierHash = Poseidon(nullifier, messageHash)` binds one proof to one message context and gives the contract a replay-protection handle.
 
 ---
 
@@ -101,14 +103,14 @@ One shot:
 npm run merkle:all
 ```
 
-Optional leaf index `0`–`7` (default `2`):
+Optional args: `leafIndex` `messageText` `nullifier`:
 
 ```bash
-node scripts/merkle-gen-input.cjs 5
+node scripts/merkle-gen-input.cjs 5 "hello zk chat" 9905
 npm run merkle:witness && npm run merkle:prove && npm run merkle:verify
 ```
 
-`merkle:gen-input` prints leaves, chosen leaf, sibling path, path indices, and computed root.
+`merkle:gen-input` prints leaves, chosen leaf, sibling path, path indices, computed root, `messageHash`, and `nullifierHash`.
 
 ---
 
@@ -180,7 +182,8 @@ See [CHANGELOG.md](./CHANGELOG.md) for a dated log (e.g. 2026-03-28 hash demo, 2
 ## Next steps (ideas)
 
 * Anonymous group membership on top of Merkle roots  
-* Wire the verifier into your dApp (beyond Truffle tests)  
+* Wire the verifier into your dApp message entrypoint (`sendMessageWithProof`)  
+* Track `nullifierHash` on-chain to reject replayed proofs  
 * Leaf as a commitment (hash leaf before inserting) if you need to match a specific protocol  
 
 ---
@@ -189,3 +192,4 @@ See [CHANGELOG.md](./CHANGELOG.md) for a dated log (e.g. 2026-03-28 hash demo, 2
 
 * Trusted setup is local and for learning only — not production-safe.  
 * Merkle tree uses **raw field elements** as leaves; parents are `Poseidon(left, right)`. Adjust the circuit if your protocol hashes leaves first.  
+* `messageHash` is currently generated from the message text with SHA-256 and reduced into the field in the helper script; your production stack can swap that for your preferred message commitment format.  

@@ -1,6 +1,7 @@
 "use strict";
 
 const { buildPoseidon } = require("circomlibjs");
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
@@ -53,11 +54,20 @@ function walkRoot(poseidon, F, leaf, pathElements, pathIndices) {
   return cur;
 }
 
+function textToField(F, text) {
+  const digest = crypto.createHash("sha256").update(text).digest("hex");
+  const asBigInt = BigInt(`0x${digest}`);
+  const fieldPrime = BigInt(F.p.toString());
+  return (asBigInt % fieldPrime).toString();
+}
+
 async function main() {
   const poseidon = await buildPoseidon();
   const F = poseidon.F;
 
   const leafIndexArg = process.argv[2];
+  const messageText = process.argv[3] || "gm zk world";
+  const nullifierArg = process.argv[4];
   const leafIndex = leafIndexArg
     ? parseInt(leafIndexArg, 10)
     : 2;
@@ -76,6 +86,11 @@ async function main() {
   const root = levels[DEPTH][0];
   const { pathElements, pathIndices } = pathForLeaf(levels, leafIndex);
   const chosenLeaf = leaves[leafIndex].toString();
+  const messageHash = textToField(F, messageText);
+  const nullifier = nullifierArg || (9000 + leafIndex).toString();
+  const nullifierHash = F.toString(
+    poseidon([F.e(nullifier), F.e(messageHash)])
+  );
 
   const recomputed = walkRoot(
     poseidon,
@@ -93,6 +108,9 @@ async function main() {
     pathElements,
     pathIndices,
     root,
+    messageHash,
+    nullifier,
+    nullifierHash,
   };
 
   const outPath = path.join(__dirname, "..", "input-merkle.json");
@@ -109,6 +127,10 @@ async function main() {
     "  (0=left slot in Poseidon, 1=right)"
   );
   console.log("root (public):          ", root);
+  console.log("message text:           ", messageText);
+  console.log("messageHash (public):   ", messageHash);
+  console.log("nullifier (private):    ", nullifier);
+  console.log("nullifierHash (public): ", nullifierHash);
   console.log("Wrote input-merkle.json");
 }
 
