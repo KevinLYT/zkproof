@@ -11,7 +11,7 @@ include "../node_modules/circomlib/circuits/poseidon.circom";
 // Private:
 // - leaf/pathElements/pathIndices: Merkle membership witness
 // - nullifier: secret used to derive the public nullifierHash
-template MerkleMembership(depth) {
+template MerkleMessageGate(depth) {
     signal input leaf;
     signal input pathElements[depth];
     signal input pathIndices[depth];
@@ -49,4 +49,4 @@ template MerkleMembership(depth) {
     nullifierHash === nullifierHasher.out;
 }
 
-component main { public [ root, messageHash, nullifierHash ] } = MerkleMembership(3);
+component main { public [ root, messageHash, nullifierHash ] } = MerkleMessageGate(3);

@@ -1,5 +1,24 @@
 # zk proof demo 升级说明
 
+## 2026-05-02 连接 dApp / contract 的更新
+
+这次把项目从单独的 zk proof demo 进一步整理成 `zkproof` proof module，目标是能和新的 zk message dApp 以及本地 message contract 对齐。
+
+新增或明确的点：
+
+1. 项目命名从 `zk-poseidon-demo` 调整为 `zkproof`。
+2. Merkle 电路语义对齐 Bruce 修改后的 `zk-message-gate`：公开输入是 `root / messageHash / nullifierHash`，私有输入是 `leaf / pathElements / pathIndices / nullifier`。
+3. 合约侧不再只保留 generated verifier；新增 `contracts/contracts/MyContract.sol`，提供 `sendMessageWithProof(...)`。
+4. `MyContract` 会在链上重新计算 `messageHash = sha256(content) % FIELD_SIZE`，然后把 `[merkleRoot, messageHash, nullifierHash]` 传给 verifier。
+5. 新增 `usedNullifierHashes`，同一个 proof/nullifier 只能使用一次，用来防 replay。
+6. Truffle migration 现在会部署 `Groth16Verifier` 后继续部署 `MyContract(verifier, root)`。
+7. contract test 从“只验证 proof”升级为“验证 proof -> 发送消息 -> 读取消息 -> 检查 replay 被拒绝”的完整 dApp integration 测试。
+8. README 已经改成 `zkproof` 版本，说明和原 NYUSH capstone dApp 的区别、升级点、dApp 连接方式和注意事项。
+
+现在面试/项目展示时可以说：
+
+> 旧版项目完成的是 Merkle membership proof 的密码学闭环；新版把 proof 绑定到 messageHash，并用 nullifierHash 做 replay protection，然后把 verifier 接进消息合约入口，所以它已经从单独 demo 升级成可以服务 dApp 的 zk proof gate。
+
 ## 这份文档是干什么的
 
 这份文档用来说明这个项目从“基础 Merkle 成员证明 demo”升级到“可对接消息 dApp 的 proof module”时，核心逻辑发生了什么变化。

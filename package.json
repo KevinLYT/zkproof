@@ -1,8 +1,8 @@
 {
-  "name": "zk-poseidon-demo",
+  "name": "zkproof",
   "version": "1.0.0",
   "private": true,
-  "description": "Minimal Circom + snarkjs demo: prove knowledge of secret with Poseidon",
+  "description": "Circom + snarkjs zk proof module for message-gated dApp integration",
   "scripts": {
     "compile": "node scripts/compile.cjs",
     "setup": "node scripts/setup.cjs",

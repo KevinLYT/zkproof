@@ -1,8 +1,8 @@
 {
-  "name": "zk-poseidon-demo-contracts",
+  "name": "zkproof-contracts",
   "version": "1.0.0",
   "private": true,
-  "description": "Truffle: Groth16 verifier for merkle_final.zkey",
+  "description": "Truffle contracts for zk-gated message verification",
   "scripts": {
     "compile": "truffle compile",
     "migrate": "truffle migrate",

@@ -7,6 +7,7 @@
  */
 
 const Groth16Verifier = artifacts.require("Groth16Verifier");
+const MyContract = artifacts.require("MyContract");
 const fs = require("fs");
 const path = require("path");
 const { unstringifyBigInts } = require("ffjavascript").utils;
@@ -38,6 +39,11 @@ module.exports = async function (callback) {
     const { a, b, c, input } = proofToSolidityArgs(proof, pub);
     const ok = await verifier.verifyProof(a, b, c, input);
     console.log("verifyProof =>", ok);
+    const zkMessage = await MyContract.deployed();
+    const to = "0x0000000000000000000000000000000000000001";
+    const content = "gm zk world";
+    const tx = await zkMessage.sendMessageWithProof(to, content, a, b, c, input[2]);
+    console.log("sendMessageWithProof tx =>", tx.tx);
     callback();
   } catch (err) {
     callback(err);

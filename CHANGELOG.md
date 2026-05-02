@@ -24,3 +24,10 @@
 - `nullifierHash` 约束为 `Poseidon(nullifier, messageHash)`，为后续消息合约中的 `usedNullifier` 防重放逻辑预留接口。
 - 更新 `scripts/merkle-gen-input.cjs`：支持传入 `leafIndex`、`messageText`、`nullifier`，并自动生成新版 `input-merkle.json`。
 - README 同步更新为新版 Merkle 说明，强调其作为消息 dApp proof module 的定位。
+# 2026-05-02
+
+- Renamed the project identity to `zkproof`.
+- Added `contracts/contracts/MyContract.sol` as the zk-gated message contract.
+- Updated Truffle migration to deploy both `Groth16Verifier` and `MyContract`.
+- Expanded contract tests to verify proof-gated message sending and nullifier replay rejection.
+- Rewrote README around the dApp integration path and the upgrade from the original NYUSH capstone message app.
