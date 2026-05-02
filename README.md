@@ -196,10 +196,10 @@ The `b` coordinates are formatted for the Solidity verifier.
 - The current default leaf is index `2`, with default nullifier `9002`.
 - This is a learning/capstone-grade demo, not audited production cryptography.
 
-## Related Repositories
+## Project Links
 
-- dApp reference: `https://github.com/ChenYujunjks/dapp-zk-message`
-- circuit reference: `https://github.com/ChenYujunjks/zk-message-gate`
-- local contract reference: `https://github.com/ChenYujunjks/zk-contracts`
+- Previous NYU capstone messaging app: `https://github.com/KevinLYT/NYUSH_Capstone_Project`
+- My zk proof module: `https://github.com/KevinLYT/zkproof`
+- My upgraded zk message dApp: `https://github.com/KevinLYT/zk-message-dapp`
 
 This repo keeps the zk proof module under my own project name, `zkproof`, and documents the upgrade path from the original proof demo to a dApp-compatible proof gate.

@@ -7,7 +7,7 @@
 新增或明确的点：
 
 1. 项目命名从 `zk-poseidon-demo` 调整为 `zkproof`。
-2. Merkle 电路语义对齐 Bruce 修改后的 `zk-message-gate`：公开输入是 `root / messageHash / nullifierHash`，私有输入是 `leaf / pathElements / pathIndices / nullifier`。
+2. Merkle 电路语义升级为 message-gate 版本：公开输入是 `root / messageHash / nullifierHash`，私有输入是 `leaf / pathElements / pathIndices / nullifier`。
 3. 合约侧不再只保留 generated verifier；新增 `contracts/contracts/MyContract.sol`，提供 `sendMessageWithProof(...)`。
 4. `MyContract` 会在链上重新计算 `messageHash = sha256(content) % FIELD_SIZE`，然后把 `[merkleRoot, messageHash, nullifierHash]` 传给 verifier。
 5. 新增 `usedNullifierHashes`，同一个 proof/nullifier 只能使用一次，用来防 replay。
@@ -243,13 +243,13 @@ README 和 CHANGELOG 已同步说明新版 Merkle proof 的定位，不再只是
 
 ## 七、之后版本目前还没有完全做完什么
 
-这次升级先把 zk 模块本身改到位了，但完整接入消息 dApp 还需要下一步配合：
+这次升级已经把 zk 模块从单独 proof demo 推进到可以接入消息 dApp 的 proof gate：
 
-1. 重新编译电路并生成新的 proof / verification key / zkey
-2. 重新导出 Solidity verifier
-3. Bruce 那边把新 verifier 接进消息合约
-4. 合约里真正记录 `usedNullifier`
-5. 前端用 thirdweb 调 `sendMessageWithProof(...)`
+1. 电路公开输入升级为 `root / messageHash / nullifierHash`
+2. 本地可以重新编译电路并生成 proof / verification key / zkey
+3. Solidity verifier 已经接进本地消息合约 `MyContract`
+4. 合约里记录 `usedNullifierHashes` 防止 replay
+5. 前端 dApp 可以用 thirdweb 调 `sendMessageWithProof(...)`
 
 也就是说，这一版是：
 
